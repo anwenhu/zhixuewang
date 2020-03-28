@@ -472,10 +472,10 @@ class Student(StuPerson):
 
     # practice
     def get_homeworks(self, subject_code: int = -1, complete_status: int = -1) -> ExtendedList[Homework]:
-        homeworks, total_count = self.__get_page_homework(subject_code=subject_code, complete_status=complete_status)
+        homeworks, total_count = self.__get_page_homework(1, subject_code=subject_code, complete_status=complete_status)
         pages = math.ceil(total_count / 10)
         for page in range(1, pages + 1):
-            homeworks.extend(self.__get_page_homework(page_index=page, subject_code=subject_code, complete_status=complete_status))
+            homeworks.extend(self.__get_page_homework(page, subject_code=subject_code, complete_status=complete_status))
         return homeworks
 
     def set_homework_detail(self, homework: Homework):
