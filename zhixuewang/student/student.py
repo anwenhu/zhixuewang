@@ -2,12 +2,13 @@ import hashlib
 import json
 import time
 import uuid
+import math
 from enum import IntEnum
 from typing import List, Union
 from zhixuewang.models import (ExtendedList, Exam, Mark, Subject, SubjectScore,
                                StuClass, School, Sex, Grade, Phase)
 from zhixuewang.exceptions import UserDefunctError
-from zhixuewang.student.models import StuPerson, StuPersonList
+from zhixuewang.student.models import StuPerson, StuPersonList, Homework
 from zhixuewang.student.urls import Url
 
 
@@ -434,3 +435,51 @@ class Student(StuPerson):
                                   "friendId": user_id
                               })
         return r.json()["result"] == "success"
+    
+    def __get_page_homework(self, page_index: int, page_size: int = 10, subject_code: int = -1, complete_status: int = -1) -> (ExtendedList[Homework], int):
+        homeworks = ExtendedList()
+        r = self._session.get("https://www.zhixue.com/middleweb/homework_middle_service/stuapp/getStudentHomeWorkList", params={
+            "subjectCode": subject_code,
+            "completeStatus": complete_status,
+            "pageSize": page_size,
+            "pageIndex": page_index
+        })
+        json_data = r.json()["result"]
+        total_count = json_data["total_count"]
+        for homework in json_data["list"]:
+            homeworks.append(Homework(
+               title=homework["hwTitle"],
+               id=homework["hwId"],
+               stu_hw_id=homework["stuHwId"],
+               subject=Subject(
+                   name=homework["subjectName"],
+                   code=homework["subjectCode"]
+               ),
+               type_name=homework["homeWorkTypeDTO"]["typeName"],
+               type_code=homework["homeWorkTypeDTO"]["typeCode"],
+               begin_time=homework["beginTime"],
+               end_time=homework["endTime"],
+               create_time=homework["createTime"],
+               score=homework["stuScore"]
+            ))
+            Homework()
+        return homeworks, total_count
+
+            
+    def get_latest_homework(self, subject_code: int = -1) -> Homework:
+        homework = self.__get_page_homework(subject_code=subject_code)[0]
+        return homework[0] if homework else None
+
+    # practice
+    def get_homeworks(self, subject_code: int = -1, complete_status: int = -1) -> ExtendedList[Homework]:
+        homeworks, total_count = self.__get_page_homework(subject_code=subject_code, complete_status=complete_status)
+        pages = math.ceil(total_count / 10)
+        for page in range(1, pages + 1):
+            homeworks.extend(self.__get_page_homework(page_index=page, subject_code=subject_code, complete_status=complete_status))
+        return homeworks
+
+    def set_homework_detail(self, homework: Homework):
+        pass
+    
+    def get_homework_report(self):
+        pass

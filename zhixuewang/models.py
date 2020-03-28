@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List, Callable, TypeVar
 from dataclasses import dataclass, field
 import datetime
-
+from zhixuewang.tools import int2datetime
 
 T = TypeVar("T")
 
@@ -86,7 +86,7 @@ class Person:
 
     def __post_init__(self):
         if isinstance(self.birthday, int):
-            self.birthday = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.birthday)
+            self.birthday = int2datetime(self.birthday)
 
 
 @dataclass
@@ -116,11 +116,11 @@ class Exam:
 
     def __post_init__(self):
         if isinstance(self.create_time, int):
-            self.create_time = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.create_time)
+            self.create_time = int2datetime(self.create_time)
         if isinstance(self.exam_time, int):
-            self.exam_time = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.exam_time)
+            self.exam_time = int2datetime(self.exam_time)
         if isinstance(self.complete_time, int):
-            self.complete_time = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.complete_time)
+            self.complete_time = int2datetime(self.complete_time)
         
     def __eq__(self, other):
         return type(other) == type(self) and other.id == self.id
@@ -141,7 +141,7 @@ class Subject:
     
     def __post_init__(self):
         if isinstance(self.create_time, int):
-            self.create_time = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.create_time)
+            self.create_time = int2datetime(self.create_time)
     
     def __eq__(self, other):
         return type(other) == type(self) and other.id == self.id
@@ -183,7 +183,7 @@ class SubjectScore:
     
     def __post_init__(self):
         if isinstance(self.create_time, int):
-            self.create_time = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=self.create_time)
+            self.create_time = int2datetime(self.create_time)
 
     def __str__(self):
         msg = f"{self.person.name} {self.subject.name}:\n分数: {self.score}\n"
